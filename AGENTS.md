@@ -24,7 +24,8 @@ go test ./...
 - Follow existing code style — no comments unless asked
 - Use `internal/` for packages not meant to be imported externally
 - Memo IDs are passed as plain strings by users, converted to `memos/{id}` internally via `memoName()` in `internal/api/memo.go`
-- API types use wrapped request bodies: `{"memo": {...}}` for create, `{"memo": {...}, "updateMask": "..."}` for update
+- API types use direct request bodies (no wrapper): memo fields sent directly for create/update
+- `updateMask` is passed as a query parameter on PATCH requests, not in the body
 - Config file at `~/.config/memos-cli/config.toml` with 0600 permissions
 - Auth priority: flags > env vars > config file
 
@@ -39,10 +40,10 @@ Targeting Memos v1 proto API. Verified against `usememos/memos` tag `v0.26.2`.
 
 | Method | Endpoint | Notes |
 |---|---|---|
-| POST | `/api/v1/memos` | Body: `{"memo": {...}}` |
+| POST | `/api/v1/memos` | Body: memo fields directly |
 | GET | `/api/v1/memos` | Query: pageSize, pageToken, filter, state, orderBy |
 | GET | `/api/v1/memos/{id}` | |
-| PATCH | `/api/v1/memos/{id}` | Body: `{"memo": {...}, "updateMask": "..."}` |
+| PATCH | `/api/v1/memos/{id}` | Body: memo fields directly; `updateMask` as query param |
 | DELETE | `/api/v1/memos/{id}` | |
 
 ## Testing
