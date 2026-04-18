@@ -76,24 +76,17 @@ type Reaction struct {
 }
 
 type Attachment struct {
-	Name         string `json:"name"`
-	CreateTime   string `json:"createTime"`
-	Filename     string `json:"filename"`
-	Content      string `json:"content"`
-	ExternalLink string `json:"externalLink"`
-	Type         string `json:"type"`
-	Size         string `json:"size"`
-	Memo         string `json:"memo"`
+	Filename string `json:"filename"`
+	Type     string `json:"type"`
 }
 
 type UpsertReactionRequest struct {
-	Name     string         `json:"name"`
-	Reaction UpsertReaction `json:"reaction"`
+	Name     string   `json:"name"`
+	Reaction Reaction `json:"reaction"`
 }
 
 type UpsertReaction struct {
 	ReactionType string `json:"reactionType"`
-	ContentId    string `json:"contentId,omitempty"`
 }
 
 type ListReactionsResponse struct {

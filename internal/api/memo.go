@@ -88,9 +88,21 @@ func (c *Client) ListMemoReactions(memoID string) ([]Reaction, string, error) {
 
 func (c *Client) UpsertMemoReaction(memoID string, reaction *UpsertReaction) (*Reaction, error) {
 	path := "/api/v1/" + memoName(memoID) + "/reactions"
-	req := UpsertReactionRequest{
-		Name:     memoName(memoID),
-		Reaction: *reaction,
+	req := struct {
+		Name       string `json:"name"`
+		Reaction   struct {
+			ContentId    string `json:"contentId"`
+			ReactionType string `json:"reactionType"`
+		} `json:"reaction"`
+	}{
+		Name: memoName(memoID),
+		Reaction: struct {
+			ContentId    string `json:"contentId"`
+			ReactionType string `json:"reactionType"`
+		}{
+			ContentId:    memoName(memoID),
+			ReactionType: reaction.ReactionType,
+		},
 	}
 	var result Reaction
 	err := c.do(http.MethodPost, path, req, &result)
@@ -111,7 +123,10 @@ func (c *Client) ListMemoAttachments(memoID string) ([]Attachment, string, error
 
 func (c *Client) SetMemoAttachments(memoID string, attachments []Attachment) error {
 	path := "/api/v1/" + memoName(memoID) + "/attachments"
-	req := SetAttachmentsRequest{
+	req := struct {
+		Name        string       `json:"name"`
+		Attachments []Attachment `json:"attachments"`
+	}{
 		Name:        memoName(memoID),
 		Attachments: attachments,
 	}
