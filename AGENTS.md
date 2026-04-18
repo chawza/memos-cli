@@ -53,3 +53,6 @@ Tests use `httptest.NewServer` for mocking the API. No external test dependencie
 ```bash
 go test ./... -v
 ```
+
+## Releases
+in every release make sure CHANGELOG.md is updated
