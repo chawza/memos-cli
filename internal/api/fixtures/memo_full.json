@@ -1,0 +1,26 @@
+{
+  "name": "memos/1",
+  "state": "NORMAL",
+  "uid": "abc123def456",
+  "creator": "users/1",
+  "createTime": "2024-01-15T10:30:00Z",
+  "updateTime": "2024-01-15T10:30:00Z",
+  "displayTime": "2024-01-15T10:30:00Z",
+  "content": "# Hello\n\nThis is a **test** memo with some content.",
+  "visibility": "PRIVATE",
+  "tags": ["test", "demo", "hello"],
+  "pinned": false,
+  "snippet": "Hello This is a test memo with some content.",
+  "property": {
+    "hasLink": false,
+    "hasTaskList": true,
+    "hasCode": false,
+    "hasIncompleteTasks": true,
+    "title": "Hello"
+  },
+  "location": {
+    "placeholder": "San Francisco, CA",
+    "latitude": 37.7749,
+    "longitude": -122.4194
+  }
+}

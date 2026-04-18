@@ -1,0 +1,47 @@
+{
+  "memos": [
+    {
+      "name": "memos/1",
+      "state": "NORMAL",
+      "uid": "uid001",
+      "creator": "users/1",
+      "createTime": "2024-01-15T10:30:00Z",
+      "updateTime": "2024-01-15T10:30:00Z",
+      "displayTime": "2024-01-15T10:30:00Z",
+      "content": "First memo content",
+      "visibility": "PUBLIC",
+      "tags": ["work"],
+      "pinned": true,
+      "snippet": "First memo content",
+      "property": {
+        "hasLink": false,
+        "hasTaskList": false,
+        "hasCode": false,
+        "hasIncompleteTasks": false,
+        "title": ""
+      }
+    },
+    {
+      "name": "memos/2",
+      "state": "NORMAL",
+      "uid": "uid002",
+      "creator": "users/1",
+      "createTime": "2024-01-16T14:20:00Z",
+      "updateTime": "2024-01-16T14:20:00Z",
+      "displayTime": "2024-01-16T14:20:00Z",
+      "content": "Second memo with a link: https://example.com",
+      "visibility": "PRIVATE",
+      "tags": ["personal"],
+      "pinned": false,
+      "snippet": "Second memo with a link: https://example.com",
+      "property": {
+        "hasLink": true,
+        "hasTaskList": false,
+        "hasCode": false,
+        "hasIncompleteTasks": false,
+        "title": ""
+      }
+    }
+  ],
+  "nextPageToken": "page2token"
+}

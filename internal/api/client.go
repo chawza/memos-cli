@@ -86,10 +86,13 @@ func (c *Client) do(method, path string, body interface{}, result interface{}) e
 
 	if resp.StatusCode >= 400 {
 		bodyBytes, _ := io.ReadAll(resp.Body)
-		return &APIError{
+		apiErr := &APIError{
 			StatusCode: resp.StatusCode,
-			Message:    fmt.Sprintf("API error %d: %s", resp.StatusCode, strings.TrimSpace(string(bodyBytes))),
 		}
+		if err := json.Unmarshal(bodyBytes, apiErr); err != nil {
+			apiErr.Message = strings.TrimSpace(string(bodyBytes))
+		}
+		return apiErr
 	}
 
 	if result != nil {
