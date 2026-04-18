@@ -3,29 +3,30 @@ package config
 import (
 	"fmt"
 	"os"
-	"os/user"
+	"path/filepath"
 
 	"github.com/BurntSushi/toml"
 )
 
-// Config holds the global CLI config.
 type Config struct {
 	BaseURL string `toml:"base_url"`
 	Token   string `toml:"token"`
 }
 
-// path returns the default config path.
-func path() string {
-	usr, err := user.Current()
+func configPath() (string, error) {
+	home, err := os.UserHomeDir()
 	if err != nil {
-		return "~/.config/memos-cli/config.toml"
+		return "", fmt.Errorf("get home dir: %w", err)
 	}
-	return usr.HomeDir + "/.config/memos-cli/config.toml"
+	return filepath.Join(home, ".config", "memos-cli", "config.toml"), nil
 }
 
-// Load reads the config file. Returns nil if the file does not exist.
 func Load() (*Config, error) {
-	p := path()
+	p, err := configPath()
+	if err != nil {
+		return nil, err
+	}
+
 	data, err := os.ReadFile(p)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -38,23 +39,28 @@ func Load() (*Config, error) {
 	if err := toml.Unmarshal(data, &cfg); err != nil {
 		return nil, fmt.Errorf("parse config: %w", err)
 	}
-
 	return &cfg, nil
 }
 
-// Save writes the config to the default path.
 func Save(cfg *Config) error {
-	p := path()
+	p, err := configPath()
+	if err != nil {
+		return err
+	}
 
-	dir := p[:len(p)-len("/config.toml")]
+	dir := filepath.Dir(p)
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return fmt.Errorf("create config dir: %w", err)
 	}
 
-	data, err := toml.Marshal(cfg)
+	f, err := os.OpenFile(p, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
-		return fmt.Errorf("marshal config: %w", err)
+		return fmt.Errorf("create config file: %w", err)
 	}
+	defer f.Close()
 
-	return os.WriteFile(p, data, 0600)
+	if err := toml.NewEncoder(f).Encode(cfg); err != nil {
+		return fmt.Errorf("encode config: %w", err)
+	}
+	return nil
 }

@@ -19,9 +19,11 @@ func runDelete(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+
 	if err := c.DeleteMemo(args[0]); err != nil {
 		return err
 	}
+
 	cmd.Printf("Deleted memo %s\n", args[0])
 	return nil
 }

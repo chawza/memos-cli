@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +11,7 @@ func init() {
 		Args:  cobra.ExactArgs(1),
 		RunE:  runGet,
 	}
+	getCmd.Flags().StringP("output", "o", "text", "Output format: text, json")
 	rootCmd.AddCommand(getCmd)
 }
 
@@ -27,11 +26,6 @@ func runGet(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Printf("ID:         %s\n", memo.ID)
-	fmt.Printf("Visibility: %s\n", memo.Visibility)
-	fmt.Printf("Pinned:     %v\n", memo.Pinned)
-	fmt.Printf("Created:    %s\n", memo.CreateTime)
-	fmt.Printf("Updated:    %s\n", memo.UpdateTime)
-	fmt.Printf("\n%s\n", memo.Content)
-	return nil
+	output, _ := cmd.Flags().GetString("output")
+	return printMemo(cmd, memo, output)
 }

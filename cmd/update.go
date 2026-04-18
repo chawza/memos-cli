@@ -3,10 +3,9 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/chawza/memos-cli/internal/api"
 	"github.com/spf13/cobra"
 )
-
-// Note: join() is defined in helpers.go
 
 func init() {
 	var updateCmd = &cobra.Command{
@@ -16,8 +15,8 @@ func init() {
 		RunE:  runUpdate,
 	}
 	updateCmd.Flags().StringP("content", "c", "", "New content")
-	updateCmd.Flags().String("visibility", "", "New visibility")
-	updateCmd.Flags().Bool("pinned", false, "Set pinned state")
+	updateCmd.Flags().String("visibility", "", "New visibility: PRIVATE, PROTECTED, PUBLIC")
+	updateCmd.Flags().Bool("pinned", false, "Pin the memo")
 	updateCmd.Flags().Bool("unpin", false, "Unpin the memo")
 	updateCmd.Flags().String("state", "", "State: NORMAL or ARCHIVED")
 	rootCmd.AddCommand(updateCmd)
@@ -32,45 +31,55 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 	content, _ := cmd.Flags().GetString("content")
 	visibility, _ := cmd.Flags().GetString("visibility")
 	pinned, _ := cmd.Flags().GetBool("pinned")
-	unpin, _ := cmd.Flags().GetBool("unpin")
 	state, _ := cmd.Flags().GetString("state")
 
-	req := &updateMemoRequest{}
+	update := &api.UpdateMemo{
+		Name: "memos/" + args[0],
+	}
 	var masks []string
 
 	if cmd.Flags().Changed("content") {
-		req.Content = &content
+		update.Content = &content
 		masks = append(masks, "content")
 	}
 	if cmd.Flags().Changed("visibility") {
-		req.Visibility = &visibility
+		update.Visibility = &visibility
 		masks = append(masks, "visibility")
 	}
 	if cmd.Flags().Changed("pinned") {
-		req.Pinned = &pinned
+		update.Pinned = &pinned
 		masks = append(masks, "pinned")
 	}
 	if cmd.Flags().Changed("unpin") {
-		p := false
-		req.Pinned = &p
+		val := false
+		update.Pinned = &val
 		masks = append(masks, "pinned")
 	}
 	if cmd.Flags().Changed("state") {
-		req.State = &state
+		update.State = &state
 		masks = append(masks, "state")
 	}
 
 	if len(masks) == 0 {
-		return fmt.Errorf("no fields to update (use flags)")
+		return fmt.Errorf("no fields to update; use flags to specify what to change")
 	}
 
-	memo, err := c.UpdateMemo(args[0], req, join(masks, ","))
+	memo, err := c.UpdateMemo(args[0], &api.UpdateMemoRequest{
+		Memo:       update,
+		UpdateMask: joinMasks(masks),
+	})
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("Updated memo %s\n", memo.ID)
+	cmd.Printf("Updated memo %s\n", memo.Name)
 	return nil
 }
 
-type updateMemoRequest = api.UpdateMemoRequest
+func joinMasks(masks []string) string {
+	result := masks[0]
+	for _, m := range masks[1:] {
+		result += "," + m
+	}
+	return result
+}

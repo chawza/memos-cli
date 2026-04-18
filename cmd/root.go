@@ -4,19 +4,22 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/chawza/memos-cli/internal/api"
+	"github.com/chawza/memos-cli/internal/config"
 	"github.com/spf13/cobra"
 )
 
 var rootCmd = &cobra.Command{
 	Use:   "memos",
-	Short: "memos-cli — CLI wrapper for the Memos API",
+	Short: "CLI wrapper for the Memos API",
 	Long: `memos-cli is a fast, minimal CLI for managing your self-hosted Memos notes.
 
-Configure once using environment variables or flags:
+Configure using environment variables, flags, or a config file:
   export MEMOS_BASE_URL="https://memos.example.com"
   export MEMOS_TOKEN="your-access-token"
 
-Then run any memos command.`,
+Or use flags:
+  memos --base-url https://memos.example.com --token xxx list`,
 }
 
 func Execute() error {
@@ -24,26 +27,25 @@ func Execute() error {
 }
 
 func init() {
-	rootCmd.PersistentFlags().String("base-url", envOr("MEMOS_BASE_URL", ""), "Memos instance base URL")
-	rootCmd.PersistentFlags().String("token", envOr("MEMOS_TOKEN", ""), "Memos access token")
+	rootCmd.PersistentFlags().String("base-url", "", "Memos instance base URL (env: MEMOS_BASE_URL)")
+	rootCmd.PersistentFlags().String("token", "", "Memos access token (env: MEMOS_TOKEN)")
 }
 
-func envOr(key, fallback string) string {
-	if v := os.Getenv(key); v != "" {
-		return v
-	}
-	return fallback
-}
-
-// resolveClient returns the API client from config + flags.
-func resolveClient(cmd *cobra.Command) (*client, error) {
+func resolveClient(cmd *cobra.Command) (*api.Client, error) {
 	baseURL, _ := cmd.Flags().GetString("base-url")
 	token, _ := cmd.Flags().GetString("token")
 
+	if baseURL == "" {
+		baseURL = os.Getenv("MEMOS_BASE_URL")
+	}
+	if token == "" {
+		token = os.Getenv("MEMOS_TOKEN")
+	}
+
 	if baseURL == "" || token == "" {
-		cfg, err := loadConfig()
+		cfg, err := config.Load()
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("load config: %w", err)
 		}
 		if cfg != nil {
 			if baseURL == "" {
@@ -56,11 +58,11 @@ func resolveClient(cmd *cobra.Command) (*client, error) {
 	}
 
 	if baseURL == "" {
-		return nil, fmt.Errorf("base URL not set: use --base-url or MEMOS_BASE_URL")
+		return nil, fmt.Errorf("base URL not set: use --base-url, MEMOS_BASE_URL, or config file")
 	}
 	if token == "" {
-		return nil, fmt.Errorf("token not set: use --token or MEMOS_TOKEN")
+		return nil, fmt.Errorf("token not set: use --token, MEMOS_TOKEN, or config file")
 	}
 
-	return newClient(baseURL, token), nil
+	return api.NewClient(baseURL, token), nil
 }
