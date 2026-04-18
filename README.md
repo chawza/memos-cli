@@ -32,74 +32,61 @@ memos auth set --base-url https://memos.example.com --token your-access-token
 
 This saves credentials to `~/.config/memos-cli/config.toml` and verifies connectivity.
 
-You can also set optional HTTP options:
-
-```bash
-memos auth set --base-url https://memos.example.com --token your-access-token --timeout 60 --tls-skip-verify
-```
-
 Verify your configuration at any time:
 
 ```bash
 memos auth check
 ```
 
-### Config file (manual)
-
-```bash
-mkdir -p ~/.config/memos-cli
-cat > ~/.config/memos-cli/config.toml << 'EOF'
-base_url = "https://memos.example.com"
-token = "your-access-token"
-timeout = 30
-tls_skip_verify = false
-EOF
-```
-
 Get your access token from **Memos web UI → Settings → Access Tokens**.
 
 ## Usage
 
-### Create a memo
+All commands use a namespace pattern: `memos <resource> <verb>`
+
+### Memo commands
 
 ```bash
-memos create -c "Buy groceries"
-memos create -c "Meeting notes" --visibility PRIVATE
-memos create -c "Important update" --pinned
+memos memo create -c "Buy groceries #shopping"
+memos memo create -c "Meeting notes" --visibility PRIVATE
+memos memo create -c "Important update" --pinned
+memos memo list
+memos memo list --limit 50
+memos memo list --state ARCHIVED
+memos memo list --output json
+memos memo list --output table
+memos memo get 123
+memos memo get 123 --output json
+memos memo get 123 --include-comments --include-reactions -a
+memos memo update 123 -c "Updated content"
+memos memo update 123 --visibility PUBLIC
+memos memo update 123 --pinned
+memos memo update 123 --unpin
+memos memo update 123 --state ARCHIVED
+memos memo delete 123
 ```
 
-### List memos
+### Comments commands
 
 ```bash
-memos list
-memos list --limit 50
-memos list --state ARCHIVED
-memos list --output json
-memos list --output table
+memos comments list 123
+memos comments create 123 -c "Great point!"
+memos comments delete 456
 ```
 
-### Get a memo
+### Reactions commands
 
 ```bash
-memos get 123
-memos get 123 --output json
+memos reactions list 123
+memos reactions create 123 --type "👍"
+memos reactions delete 123 <reaction-id>
 ```
 
-### Update a memo
+### Attachments commands
 
 ```bash
-memos update 123 -c "Updated content"
-memos update 123 --visibility PUBLIC
-memos update 123 --pinned
-memos update 123 --unpin
-memos update 123 --state ARCHIVED
-memos update 123 -c "New text" --visibility PUBLIC --pinned
-```
-
-### Delete a memo
-
-```bash
-memos delete 123
+memos attachments list 123
+memos attachments set 123 --file /path/to/file.pdf
 ```
 
 ## Output formats
@@ -114,7 +101,7 @@ The `list` and `get` commands support `--output` / `-o` with three formats:
 
 ### Text output examples
 
-**`memos get 123`:**
+**`memos memo get 123`:**
 ```
 Name:       memos/123
 State:      NORMAL
@@ -124,9 +111,15 @@ Creator:    users/1
 Created:    2025-04-18T10:30:00Z
 
 Buy groceries
+
+Reactions:
+  👍 by users/1
+
+Attachments:
+  receipt.pdf (application/pdf)
 ```
 
-**`memos list`:**
+**`memos memo list`:**
 ```
   [PRIVATE] Buy groceries
 * [PUBLIC]  Important announcement
@@ -139,11 +132,19 @@ Buy groceries
 |---|---|
 | `memos auth set` | Save credentials to config file |
 | `memos auth check` | Verify saved configuration |
-| `memos create` | Create a new memo |
-| `memos list` | List memos with filters |
-| `memos get <id>` | Get a single memo |
-| `memos update <id>` | Update a memo |
-| `memos delete <id>` | Delete a memo |
+| `memos memo list` | List memos with filters |
+| `memos memo get <id>` | Get a memo (with optional related data) |
+| `memos memo create` | Create a new memo |
+| `memos memo update <id>` | Update a memo |
+| `memos memo delete <id>` | Delete a memo |
+| `memos comments list <memo-id>` | List comments |
+| `memos comments create <memo-id>` | Create a comment |
+| `memos comments delete <comment-id>` | Delete a comment |
+| `memos reactions list <memo-id>` | List reactions |
+| `memos reactions create <memo-id>` | Add a reaction |
+| `memos reactions delete <memo-id> <reaction-id>` | Remove a reaction |
+| `memos attachments list <memo-id>` | List attachments |
+| `memos attachments set <memo-id>` | Set attachments (replaces all) |
 
 ### Global flags
 
@@ -162,33 +163,30 @@ Buy groceries
 | `--timeout` | `30` | HTTP timeout in seconds |
 | `--tls-skip-verify` | `false` | Skip TLS certificate verification |
 
-**`auth check`**
+**`memo list`**
 | Flag | Default | Description |
 |---|---|---|
-| `--base-url` | | Override base URL (optional) |
-| `--token` | | Override token (optional) |
+| `--limit` | `20` | Max memos to return |
+| `--state` | | Filter by state: `NORMAL` or `ARCHIVED` |
+| `-o, --output` | `text` | Output format: `text`, `json`, `table` |
 
-**`create`**
+**`memo get`**
+| Flag | Default | Description |
+|---|---|---|
+| `-o, --output` | `text` | Output format: `text`, `json` |
+| `--include-comments` | `false` | Include comments |
+| `--include-reactions` | `false` | Include reactions |
+| `--include-attachments` | `false` | Include attachments |
+| `-a` | `false` | Include all (comments, reactions, attachments) |
+
+**`memo create`**
 | Flag | Default | Description |
 |---|---|---|
 | `-c, --content` | (required) | Memo content in Markdown |
 | `--visibility` | `PRIVATE` | Visibility: `PRIVATE`, `PROTECTED`, `PUBLIC` |
 | `--pinned` | `false` | Pin the memo |
 
-**`list`**
-| Flag | Default | Description |
-|---|---|---|
-| `--limit` | `20` | Max memos to return |
-| `--filter` | | CEL filter expression |
-| `--state` | | Filter by state: `NORMAL` or `ARCHIVED` |
-| `-o, --output` | `text` | Output format: `text`, `json`, `table` |
-
-**`get`**
-| Flag | Default | Description |
-|---|---|---|
-| `-o, --output` | `text` | Output format: `text`, `json` |
-
-**`update`**
+**`memo update`**
 | Flag | Description |
 |---|---|
 | `-c, --content` | New content |
@@ -196,6 +194,21 @@ Buy groceries
 | `--pinned` | Pin the memo |
 | `--unpin` | Unpin the memo |
 | `--state` | New state: `NORMAL` or `ARCHIVED` |
+
+**`comments create`**
+| Flag | Default | Description |
+|---|---|---|
+| `-c, --content` | (required) | Comment content in Markdown |
+
+**`reactions create`**
+| Flag | Default | Description |
+|---|---|---|
+| `--type` | (required) | Reaction emoji |
+
+**`attachments set`**
+| Flag | Default | Description |
+|---|---|---|
+| `--file` | (required) | File path(s) to attach |
 
 ## Tech stack
 

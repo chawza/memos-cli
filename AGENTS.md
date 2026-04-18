@@ -15,7 +15,7 @@ go test ./...
 ## Structure
 
 - `main.go` — entry point
-- `cmd/` — Cobra commands (one file per command + root.go + output.go)
+- `cmd/` — Cobra commands (one file per command + root.go + output.go + memo.go)
 - `internal/api/` — API client (client.go, memo.go, types.go)
 - `internal/config/` — TOML config load/save
 
@@ -38,13 +38,48 @@ go test ./...
 
 Targeting Memos v1 proto API. Verified against `usememos/memos` tag `v0.26.2`.
 
+### Memo Endpoints
+
 | Method | Endpoint | Notes |
 |---|---|---|
 | POST | `/api/v1/memos` | Body: memo fields directly |
-| GET | `/api/v1/memos` | Query: pageSize, pageToken, filter, state, orderBy |
+| GET | `/api/v1/memos` | Query: pageSize, pageToken, state |
 | GET | `/api/v1/memos/{id}` | |
 | PATCH | `/api/v1/memos/{id}` | Body: memo fields directly; `updateMask` as query param |
 | DELETE | `/api/v1/memos/{id}` | |
+
+### Comments Endpoints
+
+| Method | Endpoint | Notes |
+|---|---|---|
+| GET | `/api/v1/memos/{id}/comments` | List comments |
+| POST | `/api/v1/memos/{id}/comments` | Create comment |
+
+### Reactions Endpoints
+
+| Method | Endpoint | Notes |
+|---|---|---|
+| GET | `/api/v1/memos/{id}/reactions` | List reactions |
+| POST | `/api/v1/memos/{id}/reactions` | Upsert reaction |
+| DELETE | `/api/v1/memos/{id}/reactions/{reaction}` | Delete reaction |
+
+### Attachments Endpoints
+
+| Method | Endpoint | Notes |
+|---|---|---|
+| GET | `/api/v1/memos/{id}/attachments` | List attachments |
+| PATCH | `/api/v1/memos/{id}/attachments` | Set attachments (replaces all) |
+
+## CLI Command Structure
+
+All commands use namespace pattern: `memos <resource> <verb>`
+
+```
+memos memo list|get|create|update|delete
+memos comments list|create|delete
+memos reactions list|create|delete
+memos attachments list|set
+```
 
 ## Testing
 
@@ -55,4 +90,5 @@ go test ./... -v
 ```
 
 ## Releases
-in every release make sure CHANGELOG.md is updated
+
+In every release make sure CHANGELOG.md is updated
