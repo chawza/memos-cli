@@ -31,6 +31,17 @@ func init() {
 	rootCmd.PersistentFlags().String("token", "", "Memos access token (env: MEMOS_TOKEN)")
 }
 
+func clientOptionsFromConfig(cfg *config.Config) []api.ClientOption {
+	var opts []api.ClientOption
+	if cfg.Timeout > 0 {
+		opts = append(opts, api.WithTimeout(cfg.Timeout))
+	}
+	if cfg.TLSSkipVerify {
+		opts = append(opts, api.WithTLSSkipVerify(true))
+	}
+	return opts
+}
+
 func resolveClient(cmd *cobra.Command) (*api.Client, error) {
 	baseURL, _ := cmd.Flags().GetString("base-url")
 	token, _ := cmd.Flags().GetString("token")
@@ -42,18 +53,17 @@ func resolveClient(cmd *cobra.Command) (*api.Client, error) {
 		token = os.Getenv("MEMOS_TOKEN")
 	}
 
-	if baseURL == "" || token == "" {
-		cfg, err := config.Load()
-		if err != nil {
-			return nil, fmt.Errorf("load config: %w", err)
+	cfg, err := config.Load()
+	if err != nil {
+		return nil, fmt.Errorf("load config: %w", err)
+	}
+
+	if cfg != nil {
+		if baseURL == "" {
+			baseURL = cfg.BaseURL
 		}
-		if cfg != nil {
-			if baseURL == "" {
-				baseURL = cfg.BaseURL
-			}
-			if token == "" {
-				token = cfg.Token
-			}
+		if token == "" {
+			token = cfg.Token
 		}
 	}
 
@@ -64,5 +74,10 @@ func resolveClient(cmd *cobra.Command) (*api.Client, error) {
 		return nil, fmt.Errorf("token not set: use --token, MEMOS_TOKEN, or config file")
 	}
 
-	return api.NewClient(baseURL, token), nil
+	var opts []api.ClientOption
+	if cfg != nil {
+		opts = clientOptionsFromConfig(cfg)
+	}
+
+	return api.NewClient(baseURL, token, opts...), nil
 }

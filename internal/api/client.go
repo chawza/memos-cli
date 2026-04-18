@@ -1,6 +1,7 @@
 package api
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -15,14 +16,47 @@ type Client struct {
 	httpClient *http.Client
 }
 
-func NewClient(baseURL, token string) *Client {
-	return &Client{
+type ClientOption func(*Client)
+
+func WithTimeout(seconds int) ClientOption {
+	return func(c *Client) {
+		c.httpClient.Timeout = time.Duration(seconds) * time.Second
+	}
+}
+
+func WithTLSSkipVerify(skip bool) ClientOption {
+	return func(c *Client) {
+		if skip {
+			transport, ok := c.httpClient.Transport.(*http.Transport)
+			if !ok {
+				transport = &http.Transport{}
+			}
+			transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+			c.httpClient.Transport = transport
+		}
+	}
+}
+
+func NewClient(baseURL, token string, opts ...ClientOption) *Client {
+	c := &Client{
 		BaseURL: strings.TrimSuffix(baseURL, "/"),
 		Token:   token,
 		httpClient: &http.Client{
 			Timeout: 30 * time.Second,
 		},
 	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
+}
+
+func (c *Client) Ping() error {
+	_, _, err := c.ListMemos(1, "", "", "")
+	if err != nil {
+		return fmt.Errorf("connectivity check failed: %w", err)
+	}
+	return nil
 }
 
 func (c *Client) do(method, path string, body interface{}, result interface{}) error {

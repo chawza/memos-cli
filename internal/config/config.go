@@ -9,8 +9,10 @@ import (
 )
 
 type Config struct {
-	BaseURL string `toml:"base_url"`
-	Token   string `toml:"token"`
+	BaseURL       string `toml:"base_url"`
+	Token         string `toml:"token"`
+	Timeout       int    `toml:"timeout,omitempty"`
+	TLSSkipVerify bool   `toml:"tls_skip_verify,omitempty"`
 }
 
 func configPath() (string, error) {

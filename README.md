@@ -24,13 +24,35 @@ There are three ways to configure the CLI, checked in priority order:
 2. **Environment variables** — `MEMOS_BASE_URL` and `MEMOS_TOKEN`
 3. **Config file** — `~/.config/memos-cli/config.toml`
 
-### Config file
+### Auth command (recommended)
+
+```bash
+memos auth set --base-url https://memos.example.com --token your-access-token
+```
+
+This saves credentials to `~/.config/memos-cli/config.toml` and verifies connectivity.
+
+You can also set optional HTTP options:
+
+```bash
+memos auth set --base-url https://memos.example.com --token your-access-token --timeout 60 --tls-skip-verify
+```
+
+Verify your configuration at any time:
+
+```bash
+memos auth check
+```
+
+### Config file (manual)
 
 ```bash
 mkdir -p ~/.config/memos-cli
 cat > ~/.config/memos-cli/config.toml << 'EOF'
 base_url = "https://memos.example.com"
 token = "your-access-token"
+timeout = 30
+tls_skip_verify = false
 EOF
 ```
 
@@ -115,6 +137,8 @@ Buy groceries
 
 | Command | Description |
 |---|---|
+| `memos auth set` | Save credentials to config file |
+| `memos auth check` | Verify saved configuration |
 | `memos create` | Create a new memo |
 | `memos list` | List memos with filters |
 | `memos get <id>` | Get a single memo |
@@ -129,6 +153,20 @@ Buy groceries
 | `--token` | `MEMOS_TOKEN` | Access token |
 
 ### Command flags
+
+**`auth set`**
+| Flag | Default | Description |
+|---|---|---|
+| `--base-url` | (required) | Memos instance URL |
+| `--token` | (required) | Access token |
+| `--timeout` | `30` | HTTP timeout in seconds |
+| `--tls-skip-verify` | `false` | Skip TLS certificate verification |
+
+**`auth check`**
+| Flag | Default | Description |
+|---|---|---|
+| `--base-url` | | Override base URL (optional) |
+| `--token` | | Override token (optional) |
 
 **`create`**
 | Flag | Default | Description |
