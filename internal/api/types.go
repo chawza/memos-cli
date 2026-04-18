@@ -66,3 +66,48 @@ func (e *APIError) Error() string {
 	}
 	return fmt.Sprintf("API error %d", e.StatusCode)
 }
+
+type Reaction struct {
+	Name         string `json:"name"`
+	Creator      string `json:"creator"`
+	ContentId    string `json:"contentId"`
+	ReactionType string `json:"reactionType"`
+	CreateTime   string `json:"createTime"`
+}
+
+type Attachment struct {
+	Name         string `json:"name"`
+	CreateTime   string `json:"createTime"`
+	Filename     string `json:"filename"`
+	Content      string `json:"content"`
+	ExternalLink string `json:"externalLink"`
+	Type         string `json:"type"`
+	Size         string `json:"size"`
+	Memo         string `json:"memo"`
+}
+
+type UpsertReactionRequest struct {
+	Name     string         `json:"name"`
+	Reaction UpsertReaction `json:"reaction"`
+}
+
+type UpsertReaction struct {
+	ReactionType string `json:"reactionType"`
+	ContentId    string `json:"contentId,omitempty"`
+}
+
+type ListReactionsResponse struct {
+	Reactions     []Reaction `json:"reactions"`
+	NextPageToken string     `json:"nextPageToken"`
+	TotalSize     int        `json:"totalSize"`
+}
+
+type ListAttachmentsResponse struct {
+	Attachments   []Attachment `json:"attachments"`
+	NextPageToken string       `json:"nextPageToken"`
+}
+
+type SetAttachmentsRequest struct {
+	Name        string       `json:"name"`
+	Attachments []Attachment `json:"attachments"`
+}

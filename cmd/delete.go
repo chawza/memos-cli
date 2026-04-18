@@ -11,7 +11,7 @@ func init() {
 		Args:  cobra.ExactArgs(1),
 		RunE:  runDelete,
 	}
-	rootCmd.AddCommand(deleteCmd)
+	memoCmd.AddCommand(deleteCmd)
 }
 
 func runDelete(cmd *cobra.Command, args []string) error {

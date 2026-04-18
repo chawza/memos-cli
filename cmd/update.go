@@ -19,7 +19,7 @@ func init() {
 	updateCmd.Flags().Bool("pinned", false, "Pin the memo")
 	updateCmd.Flags().Bool("unpin", false, "Unpin the memo")
 	updateCmd.Flags().String("state", "", "State: NORMAL or ARCHIVED")
-	rootCmd.AddCommand(updateCmd)
+	memoCmd.AddCommand(updateCmd)
 }
 
 func runUpdate(cmd *cobra.Command, args []string) error {

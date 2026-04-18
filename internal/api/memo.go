@@ -64,3 +64,56 @@ func (c *Client) UpdateMemo(id string, memo *UpdateMemo, updateMask string) (*Me
 func (c *Client) DeleteMemo(id string) error {
 	return c.do(http.MethodDelete, "/api/v1/"+memoName(id), nil, nil)
 }
+
+func (c *Client) ListMemoComments(memoID string) ([]Memo, string, error) {
+	path := "/api/v1/" + memoName(memoID) + "/comments"
+	var resp ListMemosResponse
+	err := c.do(http.MethodGet, path, nil, &resp)
+	return resp.Memos, resp.NextPageToken, err
+}
+
+func (c *Client) CreateMemoComment(memoID string, comment *CreateMemo) (*Memo, error) {
+	path := "/api/v1/" + memoName(memoID) + "/comments"
+	var result Memo
+	err := c.do(http.MethodPost, path, comment, &result)
+	return &result, err
+}
+
+func (c *Client) ListMemoReactions(memoID string) ([]Reaction, string, error) {
+	path := "/api/v1/" + memoName(memoID) + "/reactions"
+	var resp ListReactionsResponse
+	err := c.do(http.MethodGet, path, nil, &resp)
+	return resp.Reactions, resp.NextPageToken, err
+}
+
+func (c *Client) UpsertMemoReaction(memoID string, reaction *UpsertReaction) (*Reaction, error) {
+	path := "/api/v1/" + memoName(memoID) + "/reactions"
+	req := UpsertReactionRequest{
+		Name:     memoName(memoID),
+		Reaction: *reaction,
+	}
+	var result Reaction
+	err := c.do(http.MethodPost, path, req, &result)
+	return &result, err
+}
+
+func (c *Client) DeleteMemoReaction(memoID, reactionID string) error {
+	path := "/api/v1/" + memoName(memoID) + "/reactions/" + reactionID
+	return c.do(http.MethodDelete, path, nil, nil)
+}
+
+func (c *Client) ListMemoAttachments(memoID string) ([]Attachment, string, error) {
+	path := "/api/v1/" + memoName(memoID) + "/attachments"
+	var resp ListAttachmentsResponse
+	err := c.do(http.MethodGet, path, nil, &resp)
+	return resp.Attachments, resp.NextPageToken, err
+}
+
+func (c *Client) SetMemoAttachments(memoID string, attachments []Attachment) error {
+	path := "/api/v1/" + memoName(memoID) + "/attachments"
+	req := SetAttachmentsRequest{
+		Name:        memoName(memoID),
+		Attachments: attachments,
+	}
+	return c.do(http.MethodPatch, path, req, nil)
+}

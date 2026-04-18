@@ -62,3 +62,36 @@ func printMemoList(cmd *cobra.Command, memos []api.Memo, format string) error {
 		return nil
 	}
 }
+
+func printReactions(cmd *cobra.Command, reactions []api.Reaction) error {
+	if len(reactions) == 0 {
+		return nil
+	}
+	fmt.Fprintln(cmd.OutOrStdout(), "\nReactions:")
+	for _, r := range reactions {
+		fmt.Fprintf(cmd.OutOrStdout(), "  %s by %s\n", r.ReactionType, r.Creator)
+	}
+	return nil
+}
+
+func printAttachments(cmd *cobra.Command, attachments []api.Attachment) error {
+	if len(attachments) == 0 {
+		return nil
+	}
+	fmt.Fprintln(cmd.OutOrStdout(), "\nAttachments:")
+	for _, a := range attachments {
+		fmt.Fprintf(cmd.OutOrStdout(), "  %s (%s)\n", a.Filename, a.Type)
+	}
+	return nil
+}
+
+func printComments(cmd *cobra.Command, comments []api.Memo) error {
+	if len(comments) == 0 {
+		return nil
+	}
+	fmt.Fprintln(cmd.OutOrStdout(), "\nComments:")
+	for _, c := range comments {
+		fmt.Fprintf(cmd.OutOrStdout(), "  [%s] %s\n", c.Creator, c.Content)
+	}
+	return nil
+}

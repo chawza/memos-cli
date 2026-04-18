@@ -15,7 +15,7 @@ func init() {
 	createCmd.Flags().String("visibility", "PRIVATE", "Visibility: PRIVATE, PROTECTED, PUBLIC")
 	createCmd.Flags().Bool("pinned", false, "Pin the memo")
 	_ = createCmd.MarkFlagRequired("content")
-	rootCmd.AddCommand(createCmd)
+	memoCmd.AddCommand(createCmd)
 }
 
 func runCreate(cmd *cobra.Command, args []string) error {
