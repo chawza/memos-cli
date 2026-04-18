@@ -28,12 +28,10 @@ func runCreate(cmd *cobra.Command, args []string) error {
 	visibility, _ := cmd.Flags().GetString("visibility")
 	pinned, _ := cmd.Flags().GetBool("pinned")
 
-	memo, err := c.CreateMemo(&api.CreateMemoRequest{
-		Memo: &api.CreateMemo{
-			Content:    content,
-			Visibility: visibility,
-			Pinned:     pinned,
-		},
+	memo, err := c.CreateMemo(&api.CreateMemo{
+		Content:    content,
+		Visibility: visibility,
+		Pinned:     pinned,
 	})
 	if err != nil {
 		return err

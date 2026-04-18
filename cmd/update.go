@@ -64,10 +64,7 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("no fields to update; use flags to specify what to change")
 	}
 
-	memo, err := c.UpdateMemo(args[0], &api.UpdateMemoRequest{
-		Memo:       update,
-		UpdateMask: joinMasks(masks),
-	})
+	memo, err := c.UpdateMemo(args[0], update, joinMasks(masks))
 	if err != nil {
 		return err
 	}

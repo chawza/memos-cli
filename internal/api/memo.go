@@ -14,10 +14,10 @@ func memoName(id string) string {
 	return "memos/" + id
 }
 
-func (c *Client) CreateMemo(req *CreateMemoRequest) (*Memo, error) {
-	var memo Memo
-	err := c.do(http.MethodPost, "/api/v1/memos", req, &memo)
-	return &memo, err
+func (c *Client) CreateMemo(memo *CreateMemo) (*Memo, error) {
+	var result Memo
+	err := c.do(http.MethodPost, "/api/v1/memos", memo, &result)
+	return &result, err
 }
 
 func (c *Client) ListMemos(pageSize int, pageToken, filter, state string) ([]Memo, string, error) {
@@ -51,10 +51,14 @@ func (c *Client) GetMemo(id string) (*Memo, error) {
 	return &memo, err
 }
 
-func (c *Client) UpdateMemo(id string, req *UpdateMemoRequest) (*Memo, error) {
-	var memo Memo
-	err := c.do(http.MethodPatch, "/api/v1/"+memoName(id), req, &memo)
-	return &memo, err
+func (c *Client) UpdateMemo(id string, memo *UpdateMemo, updateMask string) (*Memo, error) {
+	path := "/api/v1/" + memoName(id)
+	if updateMask != "" {
+		path += "?updateMask=" + url.QueryEscape(updateMask)
+	}
+	var result Memo
+	err := c.do(http.MethodPatch, path, memo, &result)
+	return &result, err
 }
 
 func (c *Client) DeleteMemo(id string) error {

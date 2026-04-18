@@ -23,12 +23,12 @@ func TestCreateMemo(t *testing.T) {
 			t.Errorf("expected Bearer test-token, got %s", r.Header.Get("Authorization"))
 		}
 
-		var req CreateMemoRequest
+		var req CreateMemo
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			t.Fatalf("decode request: %v", err)
 		}
-		if req.Memo.Content != "hello world" {
-			t.Errorf("expected content 'hello world', got %q", req.Memo.Content)
+		if req.Content != "hello world" {
+			t.Errorf("expected content 'hello world', got %q", req.Content)
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -41,11 +41,9 @@ func TestCreateMemo(t *testing.T) {
 	defer server.Close()
 
 	c := NewClient(server.URL, "test-token")
-	memo, err := c.CreateMemo(&CreateMemoRequest{
-		Memo: &CreateMemo{
-			Content:    "hello world",
-			Visibility: "PRIVATE",
-		},
+	memo, err := c.CreateMemo(&CreateMemo{
+		Content:    "hello world",
+		Visibility: "PRIVATE",
 	})
 	if err != nil {
 		t.Fatalf("CreateMemo: %v", err)
@@ -147,15 +145,12 @@ func TestUpdateMemo(t *testing.T) {
 			t.Errorf("expected /api/v1/memos/5, got %s", r.URL.Path)
 		}
 
-		var req UpdateMemoRequest
+		var req UpdateMemo
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			t.Fatalf("decode: %v", err)
 		}
-		if req.UpdateMask != "content" {
-			t.Errorf("expected updateMask 'content', got %q", req.UpdateMask)
-		}
-		if *req.Memo.Content != "updated" {
-			t.Errorf("expected content 'updated', got %q", *req.Memo.Content)
+		if *req.Content != "updated" {
+			t.Errorf("expected content 'updated', got %q", *req.Content)
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -168,10 +163,7 @@ func TestUpdateMemo(t *testing.T) {
 
 	c := NewClient(server.URL, "test-token")
 	content := "updated"
-	memo, err := c.UpdateMemo("5", &UpdateMemoRequest{
-		Memo:       &UpdateMemo{Name: "memos/5", Content: &content},
-		UpdateMask: "content",
-	})
+	memo, err := c.UpdateMemo("5", &UpdateMemo{Name: "memos/5", Content: &content}, "content")
 	if err != nil {
 		t.Fatalf("UpdateMemo: %v", err)
 	}
