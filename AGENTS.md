@@ -29,6 +29,14 @@ go test ./...
 - Config file at `~/.config/memos-cli/config.toml` with 0600 permissions
 - Auth priority: flags > env vars > config file
 
+## Issue Fix Workflow
+
+When fixing issues from GitHub:
+1. Create a branch for the fix (do not commit directly to main)
+2. Make changes and verify with build/vet/test
+3. Create PR on GitHub and wait for merge
+4. Do NOT push commits until PR is created and ready for review
+
 ## Key Dependencies
 
 - `github.com/spf13/cobra` — CLI framework
