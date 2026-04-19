@@ -76,8 +76,9 @@ type Reaction struct {
 }
 
 type Attachment struct {
-	Filename string `json:"filename"`
-	Type     string `json:"type"`
+	Name     string `json:"name,omitempty"`
+	Filename string `json:"filename,omitempty"`
+	Type     string `json:"type,omitempty"`
 }
 
 type UpsertReactionRequest struct {

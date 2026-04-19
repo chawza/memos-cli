@@ -21,13 +21,13 @@ func init() {
 	attachmentsCmd.AddCommand(listAttachmentsCmd)
 
 	var setAttachmentsCmd = &cobra.Command{
-		Use:   "set <memo-id> --file <path>",
+		Use:   "set <memo-id> --id <attachment-id>",
 		Short: "Set attachments for a memo (replaces all existing)",
 		Args:  cobra.ExactArgs(1),
 		RunE:  runSetAttachments,
 	}
-	setAttachmentsCmd.Flags().StringArray("file", []string{}, "File path(s) to attach")
-	setAttachmentsCmd.MarkFlagRequired("file")
+	setAttachmentsCmd.Flags().StringArray("id", []string{}, "Attachment ID(s) (format: attachments/{id})")
+	setAttachmentsCmd.MarkFlagRequired("id")
 	attachmentsCmd.AddCommand(setAttachmentsCmd)
 }
 
@@ -51,16 +51,16 @@ func runSetAttachments(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	files, _ := cmd.Flags().GetStringArray("file")
-	if len(files) == 0 {
-		cmd.Println("No files to attach")
+	ids, _ := cmd.Flags().GetStringArray("id")
+	if len(ids) == 0 {
+		cmd.Println("No attachments to set")
 		return nil
 	}
 
 	var attachments []api.Attachment
-	for _, f := range files {
+	for _, id := range ids {
 		attachments = append(attachments, api.Attachment{
-			Filename: f,
+			Name: id,
 		})
 	}
 
